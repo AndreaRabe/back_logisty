@@ -3,16 +3,37 @@ import os
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
-from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.parsers import JSONParser
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from apps.users.models import ClientCompany
 from apps.users.serializers import ClientCompanySerializer
 
 # The views for ClientCompanySerializer
 
 tags = "Entreprise Client"
+
+body_parameters = openapi.Schema(
+    type=openapi.TYPE_OBJECT,
+    properties={
+        'email': openapi.Schema(type=openapi.TYPE_STRING, description="Adresse email"),
+        'username': openapi.Schema(type=openapi.TYPE_STRING, description="Nom utilisateur"),
+        'first_name': openapi.Schema(type=openapi.TYPE_STRING, description="Prénom client"),
+        'last_name': openapi.Schema(type=openapi.TYPE_STRING, description="Nom client"),
+        'password': openapi.Schema(type=openapi.TYPE_STRING, description="Mot de passe"),
+        'phone': openapi.Schema(type=openapi.TYPE_STRING, description="Numéro de téléphone"),
+        'address': openapi.Schema(type=openapi.TYPE_STRING, description="Adresse"),
+        'profile_pic': openapi.Schema(type=openapi.TYPE_STRING, format=openapi.TYPE_FILE,
+                                      description="Photo de profil"),
+        'role': openapi.Schema(type=openapi.TYPE_STRING, default='company', description="Rôle"),
+        'company_name': openapi.Schema(type=openapi.TYPE_STRING, description="Nom de la compagnie"),
+        'industry': openapi.Schema(type=openapi.TYPE_STRING, description="Secteur d'activité"),
+    },
+    required=['email', 'first_name', 'last_name', 'password', 'phone', 'address', 'company_name', 'industry']
+    # Champs obligatoires
+)
 
 form_parameters = [
     openapi.Parameter('email', openapi.IN_FORM, description="Adresse email", type=openapi.TYPE_STRING, required=True),
@@ -35,11 +56,12 @@ form_parameters = [
 # CRUD Client Company
 class ClientCompanyView(APIView):
     permission_classes = [AllowAny]
-    parser_classes = (MultiPartParser, FormParser)
+    parser_classes = [JSONParser]
 
     @swagger_auto_schema(
         operation_description="Creer compte entreprise client",
-        manual_parameters=form_parameters,
+        # manual_parameters=form_parameters,
+        request_body=body_parameters,
         responses={
             201: openapi.Response("Client company account created", ClientCompanySerializer),
             400: openapi.Response("Bad Request"),
@@ -56,7 +78,7 @@ class ClientCompanyView(APIView):
 
 class ClientCompanyProfileView(APIView):
     permission_classes = [IsAuthenticated]
-    parser_classes = [MultiPartParser, FormParser]
+    parser_classes = [JSONParser]
 
     @swagger_auto_schema(
         operation_description="Voir profil entreprise client",
@@ -70,7 +92,7 @@ class ClientCompanyProfileView(APIView):
     def get(self, request):
         client_company = request.user
         if client_company:
-            serializer = ClientCompanySerializer(client_company)
+            serializer = ClientCompanySerializer(ClientCompany.objects.get(user_ptr=client_company))
             if serializer.data:
                 return Response(serializer.data, status=status.HTTP_200_OK)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -78,7 +100,8 @@ class ClientCompanyProfileView(APIView):
 
     @swagger_auto_schema(
         operation_description="Mettre a jour le profile entreprise client",
-        manual_parameters=form_parameters,
+        # manual_parameters=form_parameters,
+        request_body=body_parameters,
         responses={
             200: openapi.Response('Client company updated', ClientCompanySerializer),
             400: openapi.Response('Bad Request'),
@@ -123,3 +146,44 @@ class ClientCompanyProfileView(APIView):
             return Response({'detail': 'Client company not found'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return Response({'detail': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ClientCompanyGetView(APIView):
+    permission_classes = [AllowAny]
+    parser_classes = [JSONParser]
+
+    @swagger_auto_schema(
+        operation_description="Récupérer tous les compagnies clients ou un compagnie spécifique par ID",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'id': openapi.Schema(type=openapi.TYPE_STRING,
+                                     description="ID du compagnie client à récupérer (optionnel)"),
+            },
+        ),
+        responses={
+            200: openapi.Response("List of client company", ClientCompanySerializer),
+            400: openapi.Response("Bad Request"),
+            404: openapi.Response("Client Company not found"),
+            500: openapi.Response("Internal Server Error")
+        },
+        tags=[tags]
+    )
+    def post(self, request):
+        try:
+            client_company_id = request.data.get('id')
+            if client_company_id:
+                try:
+                    client_company = ClientCompany.objects.get(id=client_company_id)
+                except ClientCompany.DoesNotExist:
+                    return Response({'detail': "Client company not found"}, status=status.HTTP_404_NOT_FOUND)
+
+                serializer = ClientCompanySerializer(client_company)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            else:
+                drivers = ClientCompany.objects.all()
+                serializer = ClientCompanySerializer(drivers, many=True)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({'detail': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

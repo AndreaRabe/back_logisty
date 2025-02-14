@@ -3,16 +3,34 @@ import os
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
-from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.parsers import JSONParser
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from apps.users.models import IndividualClient
 from apps.users.serializers import IndividualClientSerializer
 
 # The views for clientSerializer
 
 tags = "Client Particulier"
+
+body_parameters = openapi.Schema(
+    type=openapi.TYPE_OBJECT,
+    properties={
+        'email': openapi.Schema(type=openapi.TYPE_STRING, description="Adresse email"),
+        'username': openapi.Schema(type=openapi.TYPE_STRING, description="Nom utilisateur"),
+        'first_name': openapi.Schema(type=openapi.TYPE_STRING, description="Prénom client"),
+        'last_name': openapi.Schema(type=openapi.TYPE_STRING, description="Nom client"),
+        'password': openapi.Schema(type=openapi.TYPE_STRING, description="Mot de passe"),
+        'phone': openapi.Schema(type=openapi.TYPE_STRING, description="Numéro de téléphone"),
+        'address': openapi.Schema(type=openapi.TYPE_STRING, description="Adresse"),
+        'profile_pic': openapi.Schema(type=openapi.TYPE_STRING, format=openapi.TYPE_FILE,
+                                      description="Photo de profil"),
+        'role': openapi.Schema(type=openapi.TYPE_STRING, default='client', description="Rôle"),
+    },
+    required=['email', 'last_name', 'password', 'phone', 'address']  # Champs obligatoires
+)
 
 form_parameters = [
     openapi.Parameter('email', openapi.IN_FORM, description="Adresse email", type=openapi.TYPE_STRING, required=True),
@@ -31,11 +49,12 @@ form_parameters = [
 # CRUD Client Particulier
 class ClientParticulierView(APIView):
     permission_classes = [AllowAny]
-    parser_classes = (MultiPartParser, FormParser)
+    parser_classes = [JSONParser]
 
     @swagger_auto_schema(
         operation_description="Creer compte client particulier",
-        manual_parameters=form_parameters,
+        # manual_parameters=form_parameters,
+        request_body=body_parameters,
         responses={
             201: openapi.Response("Client created", IndividualClientSerializer),
             400: openapi.Response("Bad Request"),
@@ -52,7 +71,7 @@ class ClientParticulierView(APIView):
 
 class ClientParticulierProfileView(APIView):
     permission_classes = [IsAuthenticated]
-    parser_classes = [MultiPartParser, FormParser]
+    parser_classes = [JSONParser]
 
     @swagger_auto_schema(
         operation_description="Voir profil client particulier",
@@ -66,7 +85,7 @@ class ClientParticulierProfileView(APIView):
     def get(self, request):
         client = request.user
         if client:
-            serializer = IndividualClientSerializer(client)
+            serializer = IndividualClientSerializer(IndividualClient.objects.get(user_ptr=client))
             if serializer.data:
                 return Response(serializer.data, status=status.HTTP_200_OK)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -74,12 +93,13 @@ class ClientParticulierProfileView(APIView):
 
     @swagger_auto_schema(
         operation_description="Mettre a jour le profile client",
-        manual_parameters=form_parameters,
+        # manual_parameters=form_parameters,
+        request_body=body_parameters,
         responses={
             200: openapi.Response('Profile client updated', IndividualClientSerializer),
             400: openapi.Response('Bad Request'),
             403: openapi.Response('User unauthorized'),
-            404: "Client not found",
+            404: openapi.Response("Client not found"),
         },
         tags=[tags]
     )
@@ -102,7 +122,7 @@ class ClientParticulierProfileView(APIView):
         responses={
             204: openapi.Response('Client deleted'),
             400: openapi.Response('Bad Request'),
-            404: "Client not found",
+            404: openapi.Response("Client not found"),
         },
         tags=[tags]
     )
@@ -116,6 +136,47 @@ class ClientParticulierProfileView(APIView):
                         os.remove(image_path)
                 client.delete()
                 return Response(status=status.HTTP_204_NO_CONTENT)
-            return Response({'detail': 'client not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'detail': 'Client not found'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return Response({'detail': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ClientParticulierGetView(APIView):
+    permission_classes = [AllowAny]
+    parser_classes = [JSONParser]
+
+    @swagger_auto_schema(
+        operation_description="Récupérer tous les clients particuliers ou un client spécifique par ID",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'id': openapi.Schema(type=openapi.TYPE_STRING,
+                                     description="ID du client particulier à récupérer (optionnel)"),
+            },
+        ),
+        responses={
+            200: openapi.Response("List of individual client", IndividualClientSerializer),
+            400: openapi.Response("Bad Request"),
+            404: openapi.Response("Individual Client not found"),
+            500: openapi.Response("Internal Server Error")
+        },
+        tags=[tags]
+    )
+    def post(self, request):
+        try:
+            client_id = request.data.get('id')
+            if client_id:
+                try:
+                    client = IndividualClient.objects.get(id=client_id)
+                except IndividualClient.DoesNotExist:
+                    return Response({'detail': "Individual Client not found"}, status=status.HTTP_404_NOT_FOUND)
+
+                serializer = IndividualClientSerializer(client)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            else:
+                drivers = IndividualClient.objects.all()
+                serializer = IndividualClientSerializer(drivers, many=True)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({'detail': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'djoser',
     'rest_framework_simplejwt.token_blacklist',
     'rest_framework_simplejwt',
+    'tests',
 ]
 
 MIDDLEWARE = [
@@ -81,9 +82,14 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        "OPTIONS": {
-            "service": "logisty_service",
-        },
+        'NAME': 'logistydb',  # Nom de la base de données
+        'USER': 'rabe',  # Utilisateur PostgreSQL
+        'PASSWORD': 'andrearabe28',  # Mot de passe de l'utilisateur
+        'HOST': 'localhost',  # Adresse du serveur PostgreSQL
+        'PORT': '5432',
+        # "OPTIONS": {
+        #     "service": "logisty_service",
+        # },
     }
 }
 
@@ -181,7 +187,7 @@ DJOSER = {
     'SERIALIZERS': {
         # serializers customisable au lieu de username et password
         "user_create": "apps.users.serializers.CustomUserSerializer",
-        "current_user": "apps.users.serializers.CustomUserSerializer"
+        "current_user": "apps.users.serializers.CustomUserSerializer",
     },
 }
 #

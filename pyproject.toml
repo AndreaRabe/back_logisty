@@ -3,7 +3,7 @@ name = "logisty-back"
 version = "0.1.0"
 description = ""
 authors = [
-    { name = "Your Name", email = "you@example.com" }
+    { name = "Andrea Rabe", email = "andrearaberabe@gmail.com" }
 ]
 readme = "README.md"
 requires-python = ">=3.11,<4.0"
@@ -29,4 +29,10 @@ build-backend = "poetry.core.masonry.api"
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "config.settings"
 python_files = ["tests.py", "test_*.py", "*_tests.py"]
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.4"
+factory-boy = "^3.3.3"
+faker = "^35.2.0"
 

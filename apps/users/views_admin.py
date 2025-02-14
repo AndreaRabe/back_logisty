@@ -3,16 +3,33 @@ import os
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
-from rest_framework.parsers import MultiPartParser, FormParser
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.parsers import JSONParser
+from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from apps.users.models import Admin
 from apps.users.serializers import AdminSerializer
 
 # The views for adminSerializer
 
 tags = "Admin"
+
+body_parameters = openapi.Schema(
+    type=openapi.TYPE_OBJECT,
+    properties={
+        'email': openapi.Schema(type=openapi.TYPE_STRING, description="Adresse email"),
+        'username': openapi.Schema(type=openapi.TYPE_STRING, description="Nom utilisateur"),
+        'first_name': openapi.Schema(type=openapi.TYPE_STRING, description="Prénom admin"),
+        'last_name': openapi.Schema(type=openapi.TYPE_STRING, description="Nom admin"),
+        'password': openapi.Schema(type=openapi.TYPE_STRING, description="Mot de passe"),
+        'phone': openapi.Schema(type=openapi.TYPE_STRING, description="Numéro de téléphone"),
+        'profile_pic': openapi.Schema(type=openapi.TYPE_STRING, format=openapi.TYPE_FILE,
+                                      description="Photo de profil"),
+        'role': openapi.Schema(type=openapi.TYPE_STRING, default='admin', description="Rôle"),
+    },
+    required=['email', 'password', 'phone']  # Champs obligatoires
+)
 
 form_parameters = [
     openapi.Parameter('email', openapi.IN_FORM, description="Adresse email", type=openapi.TYPE_STRING, required=True),
@@ -30,11 +47,12 @@ form_parameters = [
 # CRUD Admin
 class AdminView(APIView):
     permission_classes = [AllowAny]
-    parser_classes = [MultiPartParser, FormParser]
+    parser_classes = [JSONParser]
 
     @swagger_auto_schema(
         operation_description="Creer compte admin",
-        manual_parameters=form_parameters,
+        # manual_parameters=form_parameters,
+        request_body=body_parameters,
         responses={
             201: openapi.Response('Admin created', AdminSerializer),
             400: openapi.Response('Bad Request'),
@@ -51,21 +69,21 @@ class AdminView(APIView):
 
 class AdminProfileView(APIView):
     permission_classes = [IsAuthenticated]
-    parser_classes = [MultiPartParser, FormParser]
+    parser_classes = [JSONParser]
 
     @swagger_auto_schema(
         operation_description="Voir profil admin",
         responses={
             200: openapi.Response('Profile Admin', AdminSerializer),
             400: openapi.Response('Bad Request'),
-            404: 'Admin not found',
+            404: openapi.Response('Admin not found'),
         },
         tags=[tags]
     )
     def get(self, request):
         admin = request.user
         if admin:
-            serializer = AdminSerializer(admin)
+            serializer = AdminSerializer(Admin.objects.get(user_ptr=admin))
             if serializer.data:
                 return Response(serializer.data, status=status.HTTP_200_OK)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -73,12 +91,13 @@ class AdminProfileView(APIView):
 
     @swagger_auto_schema(
         operation_description="Mettre a jour le profile admin",
-        manual_parameters=form_parameters,
+        # manual_parameters=form_parameters,
+        request_body=body_parameters,
         responses={
             200: openapi.Response('Profile admin updated', AdminSerializer),
             400: openapi.Response('Bad Request'),
             403: openapi.Response('User unauthorized'),
-            404: "Admin not found",
+            404: openapi.Response("Admin not found"),
         },
         tags=[tags]
     )
@@ -103,7 +122,7 @@ class AdminProfileView(APIView):
         responses={
             200: openapi.Response('Admin deleted'),
             400: openapi.Response('Bad Request'),
-            404: "Admin not found",
+            404: openapi.Response("Admin not found"),
         },
         tags=[tags]
     )
@@ -120,3 +139,27 @@ class AdminProfileView(APIView):
             return Response({'detail': 'Admin not found'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return Response({'detail': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class AdminGetView(APIView):
+    permission_classes = [IsAdminUser]
+    parser_classes = [JSONParser]
+
+    @swagger_auto_schema(
+        operation_description="Récupérer tous les clients particuliers ou un client spécifique par ID",
+        responses={
+            200: openapi.Response("List of individual client", AdminSerializer),
+            400: openapi.Response("Bad Request"),
+            404: openapi.Response("Individual Client not found"),
+            500: openapi.Response("Internal Server Error")
+        },
+        tags=[tags]
+    )
+    def get(self, request):
+        try:
+            admins = Admin.objects.all()
+
+            serializer = AdminSerializer(admins, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'detail': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

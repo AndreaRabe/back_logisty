@@ -10,11 +10,12 @@ class User(AbstractUser, PermissionsMixin):
         ('driver', 'Driver'),
         ('company', 'Client Company'),
         ('client', 'Client'),
+        ('chief', 'Chief Fleet'),
     )
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(unique=True)
-    username = models.CharField(max_length=50, unique=True)
+    username = models.CharField(max_length=25, unique=True)
     first_name = models.CharField(max_length=25)
     last_name = models.CharField(max_length=20)
     phone = models.CharField(max_length=15)
@@ -33,7 +34,7 @@ class User(AbstractUser, PermissionsMixin):
 
 class Admin(User):
     created_at = models.DateTimeField(auto_now_add=True)
-    last_admin_login = models.DateTimeField(auto_now=True)
+    last_admin_login = models.DateTimeField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
         self.role = 'admin'
@@ -56,20 +57,13 @@ class Member(User):
 
     registration_date = models.DateField(auto_now_add=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
-    address = models.CharField(max_length=255, blank=True, null=True)
+    address = models.CharField(max_length=150, blank=True, null=True)
 
     def __str__(self):
         return f"Member: {self.first_name} {self.last_name}"
 
 
-class Driver(Member):
-    driving_license = models.ImageField(upload_to="driver_licence_img", blank=True, null=True)
-    experience = models.IntegerField(default=0, help_text="Years of experience")
-
-    def __str__(self):
-        return f"Driver: {self.first_name} {self.last_name}"
-
-
+# Compagnie client
 class ClientCompany(Member):
     company_name = models.CharField(max_length=100)
     industry = models.CharField(max_length=100)
@@ -78,8 +72,46 @@ class ClientCompany(Member):
         return f"Company: {self.company_name}"
 
 
+# Client Particulier
 class IndividualClient(Member):
     pass
 
     def __str__(self):
         return f"Client: {self.first_name} {self.last_name}"
+
+
+# Chauffeur
+class Driver(Member):
+    driving_license = models.ImageField(upload_to="driver_licence_img", blank=True, null=True)
+    experience = models.IntegerField(default=0, help_text="Years of experience")
+
+    def __str__(self):
+        return f"Driver: {self.first_name} {self.last_name}"
+
+
+# Patron flotte
+class ChiefFleet(User):
+    company_name = models.CharField(max_length=100)
+    company_address = models.CharField(max_length=150, blank=True, null=True)
+    drivers = models.ManyToManyField(Driver, through='DriverChiefRequest', related_name="chief_fleets")
+
+    def __str__(self):
+        return f"Chief Fleet: {self.company_name}"
+
+
+# Relation entre driver et chef
+class DriverChiefRequest(models.Model):
+    STATUS_CHOICES = (
+        ('pending', 'Pending'),
+        ('accepted', 'Accepted'),
+        ('rejected', 'Rejected'),
+    )
+
+    driver = models.ForeignKey(Driver, on_delete=models.CASCADE, related_name="requests")
+    chief_fleet = models.ForeignKey(ChiefFleet, on_delete=models.CASCADE, related_name="requests")
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Request from {self.driver} to {self.chief_fleet} - Status: {self.status}"
