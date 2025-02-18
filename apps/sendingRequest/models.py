@@ -90,8 +90,7 @@ class SendingRequest(models.Model):
 
 class SendingRequestFleetAssignment(models.Model):
     STATUS_CHOICES = [
-        ('pending', 'Pending'),
-        ('accepted', 'Accepted'),
+        ('in_progress', 'in_progress'),
         ('rejected', 'Rejected'),
         ('completed', 'Completed'),
     ]
@@ -100,7 +99,7 @@ class SendingRequestFleetAssignment(models.Model):
     fleet_manager = models.ForeignKey(ChiefFleet, on_delete=models.CASCADE, related_name='fleet_assignments')
     driver = models.ForeignKey(Driver, on_delete=models.CASCADE, related_name="Driver")
     assigned_at = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='in_progress')
 
     def __str__(self):
         return f"Sending Request {self.sending_request} → Flee Assignment to {self.fleet_manager} - {self.driver} - {self.assigned_at}"

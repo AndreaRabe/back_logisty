@@ -1,3 +1,4 @@
+from django.http import Http404
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
@@ -220,7 +221,7 @@ class SendingRequestDetailsView(APIView):
         serializer = SendingRequestSerializer(sending_request, data=data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @swagger_auto_schema(
@@ -293,3 +294,24 @@ class AdminSendingRequestDetailsView(APIView):
         send_requests = SendingRequest.objects.all()
         serializer = SendingRequestSerializer(send_requests, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class ChiefFleetSendingRequestDetailsView(APIView):
+    permission_classes = [IsAuthenticated]
+    parser_classes = [JSONParser]
+
+    @swagger_auto_schema(
+        operation_description="Afficher la liste des demandes pas encore pris en charge",
+        responses={
+            200: openapi.Response("List of sending request", SendingRequestSerializer),
+            403: openapi.Response("User unauthorized"),
+        },
+        tags=[tags]
+    )
+    def get(self, request):
+        if request.user.role == "chief":
+            send_requests = SendingRequest.objects.filter(status="in_progress")
+            serializer = SendingRequestSerializer(send_requests, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response("User unauthorized", status=status.HTTP_403_FORBIDDEN)
