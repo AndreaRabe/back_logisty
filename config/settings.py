@@ -32,6 +32,7 @@ ALLOWED_HOSTS = ["django-24.deploy.com", '127.0.0.1', 'localhost', '0.0.0.0', '1
 INSTALLED_APPS = [
     'apps.users',
     'apps.core',
+    "apps.sendingRequest",
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
