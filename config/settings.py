@@ -33,6 +33,8 @@ INSTALLED_APPS = [
     'apps.users',
     'apps.core',
     "apps.sendingRequest",
+    'apps.subscription',
+    'apps.invoice',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

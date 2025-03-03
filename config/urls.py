@@ -18,7 +18,9 @@ from django.contrib import admin
 from django.urls import path, include
 
 from apps.core.drf_yasg_config import swagger_urlpatterns
+from apps.invoice.urls import invoice_urlpatterns
 from apps.sendingRequest.urls import sending_request_urlpatterns
+from apps.subscription.urls import subscription_plan_urlpatterns
 from apps.users.user_urls import user_urlpatterns
 
 urlpatterns = [
@@ -30,6 +32,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/v1/', include(user_urlpatterns)),
     path('api/v1/', include(sending_request_urlpatterns)),
+    path('api/v1/', include(subscription_plan_urlpatterns)),
+    path('api/v1/', include(invoice_urlpatterns))
 ]
 
 urlpatterns.extend(swagger_urlpatterns)

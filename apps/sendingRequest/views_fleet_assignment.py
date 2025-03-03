@@ -30,7 +30,7 @@ class FleetAssignmentView(APIView):
     parser_classes = [JSONParser]
 
     @swagger_auto_schema(
-        operation_description="Assigner un chef de flotte a une demande",
+        operation_description="Assigner un chef de flotte avec chauffeur a une demande",
         request_body=body_parameters,
         responses={
             201: openapi.Response("Assignment done successfully", SendingRequestFleetAssignmentSerializer),
@@ -108,29 +108,23 @@ class FleetAssignmentDetailsView(APIView):
         serializer = SendingRequestFleetAssignmentSerializer(request_assignment, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @swagger_auto_schema(
         operation_description="Annuler le transport",
-        request_body=openapi.Schema(
-            type=openapi.TYPE_OBJECT,
-            properties={
-                "status": openapi.Schema(type=openapi.TYPE_STRING, description="ID Driver"),
-            },
-            required=["status"]
-        ),
         responses={
             200: openapi.Response("Update assignment request done", SendingRequestFleetAssignmentSerializer),
-            400: openapi.Response("Bad request"),
-            403: openapi.Response("User unauthorized"),
+            404: openapi.Response("Request not found"),
+            500: openapi.Response("Internal server error"),
         },
         tags=[tags]
     )
-    def put(self, request, pk):
+    def post(self, request, pk):
         request_assignment = self.get_obj(pk)
-        serializer = CancelSendingRequestFleetAssignmentSerializer(request_assignment, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
+        request_assignment.status = "cancelled"
+        request_assignment.save()
+        serializer = CancelSendingRequestFleetAssignmentSerializer(request_assignment)
+        if serializer:
             return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

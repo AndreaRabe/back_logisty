@@ -17,7 +17,6 @@ class SendingRequest(models.Model):
 
     # Priorité de la demande (Request Priority)
     PRIORITY_CHOICES = [
-        ('low', 'Low'),
         ('medium', 'Medium'),
         ('high', 'High'),
     ]
@@ -27,7 +26,7 @@ class SendingRequest(models.Model):
         ('pending', 'Pending'),
         ('accepted', 'Accepted'),
         ('rejected', 'Rejected'),
-        ('in_progress', 'In Progress'),
+        ('in_progress', 'In Progress'),  # When payment is done
         ('completed', 'Completed'),
         ('cancelled', 'Cancelled'),
     ]
@@ -81,7 +80,7 @@ class SendingRequest(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
 
     def __str__(self):
-        return f"Sending Request #{self.id} - {self.cargo_type} ({self.pickup_location} → {self.delivery_location})"
+        return f"Sending Request #{self.client} - {self.cargo_type} ({self.pickup_location} → {self.delivery_location})"
 
     class Meta:
         verbose_name = "Sending Request"
@@ -91,15 +90,16 @@ class SendingRequest(models.Model):
 class SendingRequestFleetAssignment(models.Model):
     STATUS_CHOICES = [
         ('in_progress', 'in_progress'),
-        ('rejected', 'Rejected'),
+        ('cancelled', 'Cancelled'),
         ('completed', 'Completed'),
+        ('assigned', 'Assigned')
     ]
 
     sending_request = models.ForeignKey(SendingRequest, on_delete=models.CASCADE, related_name='fleet_assignments')
     fleet_manager = models.ForeignKey(ChiefFleet, on_delete=models.CASCADE, related_name='fleet_assignments')
     driver = models.ForeignKey(Driver, on_delete=models.CASCADE, related_name="Driver")
     assigned_at = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='in_progress')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='assigned')
 
     def __str__(self):
         return f"Sending Request {self.sending_request} → Flee Assignment to {self.fleet_manager} - {self.driver} - {self.assigned_at}"
