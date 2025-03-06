@@ -109,11 +109,20 @@ body_parameters = openapi.Schema(
             description="Priority level of the request",
             enum=["medium", "high"],
         ),
-
-        # Mode de paiement (Payment Method)
-        'payment_method': openapi.Schema(
-            type=openapi.TYPE_STRING,
-            description="Payment method for the request",
+        'base_price': openapi.Schema(
+            type=openapi.TYPE_INTEGER,
+            format=openapi.FORMAT_FLOAT,
+            description="Base Price",
+        ),
+        'commission_rate': openapi.Schema(
+            type=openapi.TYPE_INTEGER,
+            format=openapi.FORMAT_FLOAT,
+            description="Commission Rate in percentage(20%, 25.2%, ...)"
+        ),
+        'total_price': openapi.Schema(
+            type=openapi.TYPE_INTEGER,
+            format=openapi.FORMAT_FLOAT,
+            description="Total montant a payer"
         ),
     },
     required=[

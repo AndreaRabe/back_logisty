@@ -19,7 +19,6 @@ class User(AbstractUser, PermissionsMixin):
     first_name = models.CharField(max_length=25)
     last_name = models.CharField(max_length=20)
     phone = models.CharField(max_length=15)
-    # Password is already handled by AbstractBaseUser
     profile_pic = models.ImageField(upload_to="profile_img", blank=True, null=True)
     role = models.CharField(max_length=20, choices=ROLES)
     is_active = models.BooleanField(default=True)
@@ -39,7 +38,7 @@ class Admin(User):
     def save(self, *args, **kwargs):
         self.role = 'admin'
         self.is_staff = True
-        self.is_superuser = True  # Grants all permissions
+        self.is_superuser = True
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -50,7 +49,6 @@ class Member(User):
     STATUS_CHOICES = [
         ("active", "Active"),
         ("suspended", "Suspended"),
-        ("disabled", "Disabled"),
         ("pending", "Pending"),
         ("banned", "Banned"),
     ]
@@ -63,16 +61,14 @@ class Member(User):
         return f"Member: {self.first_name} {self.last_name}"
 
 
-# Compagnie client
 class ClientCompany(Member):
     company_name = models.CharField(max_length=100)
     industry = models.CharField(max_length=100)
 
     def __str__(self):
-        return f"Company: {self.company_name}"
+        return f"Company: {self.company_name}, Industry: {self.industry}"
 
 
-# Client Particulier
 class IndividualClient(Member):
     pass
 
@@ -80,7 +76,6 @@ class IndividualClient(Member):
         return f"Client: {self.first_name} {self.last_name}"
 
 
-# Chauffeur
 class Driver(Member):
     driving_license = models.ImageField(upload_to="driver_licence_img", blank=True, null=True)
     experience = models.IntegerField(default=0, help_text="Years of experience")
@@ -89,7 +84,6 @@ class Driver(Member):
         return f"Driver: {self.first_name} {self.last_name}"
 
 
-# Patron flotte
 class ChiefFleet(User):
     company_name = models.CharField(max_length=100)
     company_address = models.CharField(max_length=150, blank=True, null=True)
@@ -99,7 +93,6 @@ class ChiefFleet(User):
         return f"Chief Fleet: {self.company_name}"
 
 
-# Relation entre driver et chef
 class DriverChiefRequest(models.Model):
     STATUS_CHOICES = (
         ('pending', 'Pending'),

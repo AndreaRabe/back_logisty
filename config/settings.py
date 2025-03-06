@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     "apps.sendingRequest",
     'apps.subscription',
     'apps.invoice',
+    'apps.truck',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

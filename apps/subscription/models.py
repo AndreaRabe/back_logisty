@@ -17,11 +17,11 @@ class SubscriptionPlan(models.Model):
 
 
 class Subscription(models.Model):
-    client = models.ForeignKey(Member, on_delete=models.CASCADE, related_name='subscriptions')  # Utilisateur lié
+    client = models.ForeignKey(Member, on_delete=models.CASCADE, related_name='subscriptions')
     sub_plan = models.ForeignKey(SubscriptionPlan, on_delete=models.CASCADE,
                                  related_name='subscriptions')  # Plan choisi
     start_date = models.DateField(auto_now_add=True)  # Date de début
-    end_date = models.DateField(blank=True, null=True)  # Date de fin calculée
+    end_date = models.DateField(blank=True, null=True)  # Date de fin
     status = models.CharField(
         max_length=20,
         choices=[
@@ -31,21 +31,6 @@ class Subscription(models.Model):
         ],
         default='active'
     )
-
-    # payment_status = models.CharField(
-    #     max_length=20,
-    #     choices=[
-    #         ('pending', 'Pending'),
-    #         ('completed', 'Completed'),
-    #         ('failed', 'Failed'),
-    #     ],
-    #     default='pending'
-    # )
-
-    # def save(self, *args, **kwargs):
-    #     if self.start_date:
-    #         self.end_date = self.start_date + relativedelta(months=self.sub_plan.duration_month)
-    #     super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.client} - {self.sub_plan} ({self.status})"

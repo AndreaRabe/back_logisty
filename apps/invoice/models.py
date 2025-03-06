@@ -48,7 +48,7 @@ class SendingRequestInvoice(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)  # D'abord on sauvegarde pour obtenir un ID
+        super().save(*args, **kwargs)
         if not self.invoice_number:
             self.invoice_number = f"REQ-INV-{self.pk:04d}"  # Utiliser pk au lieu de id
             super().save(update_fields=['invoice_number'])  # Mise à jour sans déclencher une boucle

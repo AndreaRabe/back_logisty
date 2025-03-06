@@ -4,7 +4,7 @@ from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
 from rest_framework.parsers import JSONParser
-from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -18,17 +18,18 @@ tags = "Admin"
 body_parameters = openapi.Schema(
     type=openapi.TYPE_OBJECT,
     properties={
-        'email': openapi.Schema(type=openapi.TYPE_STRING, description="Adresse email"),
-        'username': openapi.Schema(type=openapi.TYPE_STRING, description="Nom utilisateur"),
-        'first_name': openapi.Schema(type=openapi.TYPE_STRING, description="Prénom admin"),
-        'last_name': openapi.Schema(type=openapi.TYPE_STRING, description="Nom admin"),
-        'password': openapi.Schema(type=openapi.TYPE_STRING, description="Mot de passe"),
-        'phone': openapi.Schema(type=openapi.TYPE_STRING, description="Numéro de téléphone"),
+        'email': openapi.Schema(type=openapi.TYPE_STRING, format=openapi.FORMAT_EMAIL,
+                                description="Admin email address"),
+        'username': openapi.Schema(type=openapi.TYPE_STRING, description="Username"),
+        'first_name': openapi.Schema(type=openapi.TYPE_STRING, description="Admin first name"),
+        'last_name': openapi.Schema(type=openapi.TYPE_STRING, description="Admin last name"),
+        'password': openapi.Schema(type=openapi.TYPE_STRING, description="Admin password"),
+        'phone': openapi.Schema(type=openapi.TYPE_STRING, description="Phone number"),
         'profile_pic': openapi.Schema(type=openapi.TYPE_STRING, format=openapi.TYPE_FILE,
-                                      description="Photo de profil"),
+                                      description="Profile picture"),
         'role': openapi.Schema(type=openapi.TYPE_STRING, default='admin', description="Rôle"),
     },
-    required=['email', 'password', 'phone']  # Champs obligatoires
+    required=['email', 'password', 'phone', 'username', 'role'],
 )
 
 form_parameters = [
@@ -44,27 +45,29 @@ form_parameters = [
 ]
 
 
-# CRUD Admin
 class AdminView(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAdminUser]
     parser_classes = [JSONParser]
 
     @swagger_auto_schema(
-        operation_description="Creer compte admin",
-        # manual_parameters=form_parameters,
+        operation_description="Creer un compte admin",
         request_body=body_parameters,
         responses={
             201: openapi.Response('Admin created', AdminSerializer),
             400: openapi.Response('Bad Request'),
+            500: openapi.Response('Internal Server Error'),
         },
         tags=[tags]
     )
     def post(self, request):
-        serializer = AdminSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            serializer = AdminSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class AdminProfileView(APIView):
@@ -76,22 +79,25 @@ class AdminProfileView(APIView):
         responses={
             200: openapi.Response('Profile Admin', AdminSerializer),
             400: openapi.Response('Bad Request'),
-            404: openapi.Response('Admin not found'),
+            403: openapi.Response('Unauthorized'),
+            500: openapi.Response('Internal Server Error'),
         },
         tags=[tags]
     )
     def get(self, request):
-        admin = request.user
-        if admin:
-            serializer = AdminSerializer(Admin.objects.get(user_ptr=admin))
-            if serializer.data:
-                return Response(serializer.data, status=status.HTTP_200_OK)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response(status=status.HTTP_404_NOT_FOUND)
+        try:
+            admin = request.user
+            if admin.is_superuser:
+                serializer = AdminSerializer(Admin.objects.get(user_ptr=admin))
+                if serializer.data:
+                    return Response(serializer.data, status=status.HTTP_200_OK)
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @swagger_auto_schema(
         operation_description="Mettre a jour le profile admin",
-        # manual_parameters=form_parameters,
         request_body=body_parameters,
         responses={
             200: openapi.Response('Profile admin updated', AdminSerializer),

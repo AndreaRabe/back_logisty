@@ -10,6 +10,7 @@ from rest_framework.views import APIView
 from apps.sendingRequest.models import SendingRequestFleetAssignment
 from apps.sendingRequest.serializers import SendingRequestFleetAssignmentSerializer, \
     CancelSendingRequestFleetAssignmentSerializer
+from apps.sendingRequest.utils import sending_request_to_delivery_note
 
 # Views for Fleet assignment
 
@@ -20,6 +21,7 @@ body_parameters = openapi.Schema(
     properties={
         "sending_request": openapi.Schema(type=openapi.TYPE_STRING, description="ID Sending Request"),
         "driver": openapi.Schema(type=openapi.TYPE_STRING, description="ID Driver"),
+        "truck": openapi.Schema(type=openapi.TYPE_STRING, description="ID Truck"),
     },
     required=["sending_request", "driver"],
 )
@@ -28,6 +30,9 @@ body_parameters = openapi.Schema(
 class FleetAssignmentView(APIView):
     permission_classes = [IsAuthenticated]
     parser_classes = [JSONParser]
+
+    def verify_assignment(self, pk):
+        return SendingRequestFleetAssignment.objects.get(sending_request=pk, status="assigned")
 
     @swagger_auto_schema(
         operation_description="Assigner un chef de flotte avec chauffeur a une demande",
@@ -44,7 +49,15 @@ class FleetAssignmentView(APIView):
             chief_fleet = request.user
             if chief_fleet.role == "chief":
                 data = request.data.copy()  # Copier les données pour les modifier
-                data['fleet_manager'] = chief_fleet.id  # Ajouter l'ID du driver
+                data['fleet_manager'] = chief_fleet.id
+
+                id_delivery_note = sending_request_to_delivery_note(data['sending_request'])
+                data['delivery_note'] = id_delivery_note
+
+                sending_req = self.verify_assignment(data['sending_request'])
+
+                if sending_req:
+                    return Response({"error": "Request already assigned"}, status=status.HTTP_400_BAD_REQUEST)
 
                 serializer = SendingRequestFleetAssignmentSerializer(data=data)
                 if serializer.is_valid():

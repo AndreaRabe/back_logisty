@@ -26,7 +26,7 @@ class SubscriptionSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         # Récupérer le plan d'abonnement à partir des données validées
         sub_plan = validated_data.get('sub_plan')
-        
+
         # Calculer la date de fin en fonction de la durée du plan
         start_date = validated_data.get('start_date', datetime.now().date())
         end_date = start_date + relativedelta(months=sub_plan.duration_month)

@@ -5,6 +5,10 @@ from .models import User, Admin, Member, Driver, ClientCompany, IndividualClient
 
 
 class CustomUserSerializer(serializers.ModelSerializer):
+    """
+    Main serializer for the User model
+    """
+
     class Meta:
         model = User
         fields = ['id', 'email', 'username', 'first_name', 'last_name', 'password', 'phone', 'role', 'profile_pic',
@@ -69,6 +73,7 @@ class ChiefFleetSerializer(CustomUserSerializer):
 
 
 class DriverChiefRequestSerializer(serializers.ModelSerializer):
+    # A verifier
     driver = serializers.PrimaryKeyRelatedField(
         queryset=Driver.objects.all(),
     )
@@ -99,9 +104,8 @@ class DriverChiefRequestSerializer(serializers.ModelSerializer):
                 chief_fleet=chief_fleet,
                 status='accepted'
         ).exists():
-            raise serializers.ValidationError({
-                "error": "Ce conducteur est déjà associé au Chef de flotte sélectionné."
-            })
+            raise serializers.ValidationError(
+                {"error": "Ce conducteur est déjà associé au Chef de flotte sélectionné."})
 
         # Vérifie s'il existe déjà une demande en attente (pending) pour ce conducteur et ce Chef de flotte
         if DriverChiefRequest.objects.filter(

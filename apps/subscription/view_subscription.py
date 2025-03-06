@@ -46,7 +46,7 @@ def get_user(request):
         raise PermissionDenied("You must be a client or company to perform this request")
 
 
-def get_object(request, pk):
+def get_object_subscription(request, pk):
     try:
         return Subscription.objects.get(pk=pk, client=request.user)
     except Subscription.DoesNotExist:
@@ -108,7 +108,7 @@ class SubscriptionView(APIView):
             subscriptions = Subscription.objects.filter(client=request.user, status="active").first()  # first
             if subscriptions:
                 serializer = SubscriptionSerializer(subscriptions)
-                return Response(serializer.data, status=200)
+                return Response(serializer.data, status=status.HTTP_200_OK)
             return Response("You have no subscription", status=status.HTTP_204_NO_CONTENT)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -136,7 +136,7 @@ class CancelSubscriptionView(APIView):
             else:
                 subscription.status = "cancelled"
                 subscription.save()
-                return Response({"message": "Subscription cancelled successfully"}, status=200)
+                return Response({"message": "Subscription cancelled successfully"}, status=status.HTTP_200_OK)
 
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -156,11 +156,11 @@ class RenewSubscriptionView(APIView):
         tags=[tags]
     )
     def post(self, request, pk):
-        subscription = get_object(request, pk)
+        subscription = get_object_subscription(request, pk)
         if subscription.status == "expired":
             subscription.start_date = datetime.now().date()
             subscription.end_date = datetime.now().date() + relativedelta(months=subscription.sub_plan.duration_month)
             subscription.status = "active"
             subscription.save()
-            return Response({"message": "Subscription renewed successfully"}, status=200)
-        return Response({"error": "Subscription cannot be renewed"}, status=400)
+            return Response({"message": "Subscription renewed successfully"}, status=status.HTTP_200_OK)
+        return Response({"error": "Subscription cannot be renewed"}, status=status.HTTP_400_BAD_REQUEST)

@@ -32,7 +32,6 @@ body_parameters = openapi.Schema(
         'industry': openapi.Schema(type=openapi.TYPE_STRING, description="Secteur d'activité"),
     },
     required=['email', 'first_name', 'last_name', 'password', 'phone', 'address', 'company_name', 'industry']
-    # Champs obligatoires
 )
 
 form_parameters = [
@@ -65,15 +64,19 @@ class ClientCompanyView(APIView):
         responses={
             201: openapi.Response("Client company account created", ClientCompanySerializer),
             400: openapi.Response("Bad Request"),
+            500: openapi.Response("Internal Server Error"),
         },
         tags=[tags]
     )
     def post(self, request):
-        serializer = ClientCompanySerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            serializer = ClientCompanySerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class ClientCompanyProfileView(APIView):

@@ -66,15 +66,19 @@ class DriverView(APIView):
         responses={
             201: openapi.Response("Driver created", DriverSerializer),
             400: openapi.Response("Bad Request"),
+            500: openapi.Response("Internal Server Error"),
         },
         tags=[tags]
     )
     def post(self, request):
-        serializer = DriverSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            serializer = DriverSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class DriverProfileView(APIView):
