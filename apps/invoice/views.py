@@ -183,8 +183,7 @@ class SendingRequestInvoiceView(APIView):
 
         # Informations de paiement
         p.drawString(50, height - 540, "Informations de paiement:")
-        p.drawString(70, height - 560, f"Montant total: {invoice_data['total_ttc']} Ar")
-        p.drawString(70, height - 580, f"Méthode de paiement: {invoice_data['payment_method']}")
+        p.drawString(70, height - 560, f"Montant total: {invoice_data['total_price']} Ar")
         p.drawString(70, height - 600, f"Statut de paiement: {invoice_data['status']}")
 
         # Sauvegarde du PDF

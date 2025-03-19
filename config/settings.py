@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'apps.subscription',
     'apps.invoice',
     'apps.truck',
+    'apps.contrat',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -194,7 +195,7 @@ DJOSER = {
         "current_user": "apps.users.serializers.CustomUserSerializer",
     },
 }
-#
+
 # LOGGING = {
 #     'version': 1,
 #     'disable_existing_loggers': False,

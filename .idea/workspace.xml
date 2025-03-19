@@ -5,31 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d00a7fc4-566e-46d6-b93d-a63a3772d920" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/apps/sendingRequest/utils.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/apps/truck/urls.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/apps/users/utils.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/apps/contrat/serializers.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/invoice/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/invoice/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/sendingRequest/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/sendingRequest/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/sendingRequest/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/sendingRequest/serializers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/sendingRequest/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/sendingRequest/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/sendingRequest/views_fleet_assignment.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/sendingRequest/views_fleet_assignment.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/subscription/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/subscription/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/subscription/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/subscription/serializers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/subscription/view_subscription.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/subscription/view_subscription.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/invoice/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/invoice/views.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/truck/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/truck/models.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/truck/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/truck/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/users/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/users/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/users/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/users/serializers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/users/user_urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/users/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/users/views_admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/users/views_admin.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/users/views_chief_fleet.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/users/views_chief_fleet.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/users/views_client_company.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/users/views_client_company.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/users/views_driver.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/users/views_driver.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/users/views_driverChef_request.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/users/views_driverChef_request.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/users/views_individual_client.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/users/views_individual_client.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/config/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/config/settings.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/config/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/poetry.lock" beforeDir="false" afterPath="$PROJECT_DIR$/poetry.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pyproject.toml" beforeDir="false" afterPath="$PROJECT_DIR$/pyproject.toml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -60,36 +43,39 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Python tests.Python tests for tests.test_create_individual_client.executor&quot;: &quot;Run&quot;,
-    &quot;Python tests.Python tests for tests.test_get_individual_client_profile.executor&quot;: &quot;Run&quot;,
-    &quot;Python tests.Python tests in tests.py.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/andrea/Projects/Job/Logisty/logisty_back&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.stylelint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.stylelint&quot;: &quot;&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;Errors&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Python tests.Python tests for tests.test_create_individual_client.executor": "Run",
+    "Python tests.Python tests for tests.test_get_individual_client_profile.executor": "Run",
+    "Python tests.Python tests in tests.py.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "git-widget-placeholder": "main",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "/home/andrea/Projects/Job/Logisty/logisty_back",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.stylelint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.stylelint": "",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.0",
+    "settings.editor.selected.configurable": "Errors",
+    "vue.rearranger.settings.migration": "true"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;DatabaseDriversLRU&quot;: [
-      &quot;mysql_aurora_aws&quot;
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "mysql_aurora_aws"
     ]
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/apps" />
     </key>
@@ -169,12 +155,19 @@
       <workItem from="1740838511309" duration="4289000" />
       <workItem from="1740982134003" duration="16736000" />
       <workItem from="1741060865750" duration="15134000" />
-      <workItem from="1741176276280" duration="20355000" />
+      <workItem from="1741176276280" duration="27852000" />
+      <workItem from="1741360397606" duration="1796000" />
+      <workItem from="1741866094346" duration="9741000" />
+      <workItem from="1741954798378" duration="9249000" />
+      <workItem from="1742359847313" duration="4216000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="UnknownFeatures">
+    <option featureType="com.intellij.fileTypeFactory" implementationName=".env" />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
     <option name="TAB_STATES">
